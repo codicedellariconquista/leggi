@@ -1,6 +1,6 @@
 /* Service worker do leitor. Para publicar uma versão nova: trocar VERSION (o cache antigo é apagado no activate). */
 /* Caminhos relativos ao escopo do SW: funciona em https://codicedellariconquista.com/leggi/ e em localhost:/leggi/. */
-var VERSION = 'rqit-leitor-v12';
+var VERSION = 'rqit-leitor-v13';
 var SCOPE = self.registration.scope;
 var PRECACHE = [
   './', 'index.html', 'reader.css', 'reader.js', 'content.js', 'config.js', 'access.js', 'manifest.webmanifest',

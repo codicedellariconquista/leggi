@@ -45,8 +45,8 @@
       '<img class="bk-rose" src="assets/rose.png" alt="" draggable="false">' +
       '<div class="bk-t">Il Codice della<br><span>Riconquista</span></div><div class="bk-a">Henrico Feraz</div><div class="bar"></div></div></section>';
   }
-  function wrap(idx, inner, cls) {
-    return '<section class="page ' + (cls || 'pg-ch') + '" data-p="' + idx + '"><div class="pgi">' + runHead() + inner + foot(idx) + '</div></section>';
+  function wrap(idx, inner, cls, head) {
+    return '<section class="page ' + (cls || 'pg-ch') + '" data-p="' + idx + '"><div class="pgi">' + runHead(head) + inner + foot(idx) + '</div></section>';
   }
 
   /* páginas do livro principal: capa, índice, cap. 1–3 (copy do Copywriter), fecho */
@@ -80,14 +80,39 @@
     return { html: h.join(''), count: h.length, tocPage: 1, firstContent: c1s, chapters: { 1: c1s, 2: c2s, 3: c3s, scudo: scudo } };
   }
 
+  function bumpGlobal(id) { return id === 'bump1' ? 'RQIT_BUMP1' : 'RQIT_BUMP2'; }
+  function bumpSrc(id) { return id === 'bump1' ? 'bump1.js' : 'bump2.js'; }
+  var bumpLoading = {};
+  /* O conteúdo completo do bump só é baixado depois da liberação (não entra no precache do SW). */
+  function loadBumpContent(id) {
+    var g = bumpGlobal(id);
+    if (window[g] && window[g].pages && window[g].pages.length) return Promise.resolve(window[g]);
+    if (bumpLoading[id]) return bumpLoading[id];
+    bumpLoading[id] = new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = bumpSrc(id);
+      s.async = true;
+      s.onload = function () {
+        if (window[g] && window[g].pages && window[g].pages.length) resolve(window[g]);
+        else { bumpLoading[id] = null; reject(new Error('bump')); }
+      };
+      s.onerror = function () { bumpLoading[id] = null; reject(new Error('net')); };
+      document.head.appendChild(s);
+    });
+    return bumpLoading[id];
+  }
+
   function buildBump(id) {
     var meta = id === 'bump1'
-      ? { title: 'Lei ti ha risposto. E adesso?', img: 'assets/cover-bump1.webp', tag: 'BUMP 1' }
-      : { title: 'Il primo incontro dopo la rottura', img: 'assets/cover-bump2.webp', tag: 'BUMP 2' };
+      ? { title: 'Lei ti ha risposto. E adesso?', img: 'assets/cover-bump1.webp' }
+      : { title: 'Il primo incontro dopo la rottura', img: 'assets/cover-bump2.webp' };
+    var data = window[bumpGlobal(id)] || {};
+    var pages = data.pages || [];
     var h = [pageBumpCover(meta.title, meta.img, 0)];
-    h.push(wrap(1, '<p class="ch-kick">Bonus</p><h2 class="ch-title">' + meta.title + '</h2><span class="rule"></span>' + ph('LIBRO ' + meta.tag) + '<blockquote class="qt"><p>[[TESTO CITAZIONE ' + meta.tag + ' — placeholder]]</p></blockquote>'));
-    h.push(wrap(2, '<div class="ch-body cont">' + ph('LIBRO ' + meta.tag + ', SEGUE') + '<aside class="box box-tip"><h3>Consiglio</h3>' + ph('CONSIGLIO ' + meta.tag) + '</aside></div>'));
-    h.push(pageBack(3));
+    pages.forEach(function (html, i) {
+      h.push(wrap(1 + i, '<div class="ch-body' + (i ? ' cont' : '') + '">' + html + '</div>', 'pg-ch', meta.title));
+    });
+    h.push(pageBack(1 + pages.length));
     return { html: h.join(''), count: h.length, tocPage: -1, firstContent: 1, title: meta.title };
   }
 
@@ -190,12 +215,21 @@
     if (!book) return;
     if (!accessState.granted) { showGate(); return; }
     if (isLocked(book)) { openPreview(id); return; }
-    destroyFlip();
-    show('reader');
-    $('reader-title').textContent = book.title;
-    $('btn-index').hidden = (id !== 'main');
-    var built = id === 'main' ? buildMain() : buildBump(id);
-    startFlip(built, id, startPage);
+    function go() {
+      destroyFlip();
+      show('reader');
+      $('reader-title').textContent = book.title;
+      $('btn-index').hidden = (id !== 'main');
+      var built = id === 'main' ? buildMain() : buildBump(id);
+      startFlip(built, id, startPage);
+    }
+    if (book.bump) {
+      loadBumpContent(id).then(go).catch(function () {
+        toast('Non riusciamo ad aprire il libro in questo momento. Riprova.');
+      });
+      return;
+    }
+    go();
   }
 
   function openPreview(id) {

@@ -140,6 +140,7 @@ html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;backgrou
 .ch-kick{margin:1.6cqw 0 0;font:700 3cqw/1 var(--sans);letter-spacing:.32em;text-transform:uppercase;color:var(--red)}
 .ch-num{margin:0.6cqw 0 0;font:700 8cqw/1 var(--serif);color:var(--ink)}
 .ch-title{margin:1cqw 0 0;font:700 6cqw/1.12 var(--serif);text-transform:none;letter-spacing:.0em}
+.ch-sub{margin:2.2cqw 0 3.2cqw;font:italic 500 4.1cqw/1.35 var(--serif);color:#5a4545}
 .sec-h{margin:4cqw 0 3cqw;font:700 4.8cqw/1.2 var(--serif);color:var(--ink)}
 .ch-body{padding-top:2cqw}
 .txt{margin:0 0 2.8cqw;font:400 4.15cqw/1.48 var(--serif);text-align:left;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
