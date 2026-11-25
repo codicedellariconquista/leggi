@@ -36,6 +36,24 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js', { 
     </div>
   </section>
 
+  <section id="gate" class="screen intro gate" hidden aria-label="Accesso">
+    <div class="intro-bg" aria-hidden="true"></div>
+    <div class="intro-inner">
+      <p class="intro-kicker">Henrico Feraz</p>
+      <div class="intro-rule" aria-hidden="true"></div>
+      <h1 class="intro-title">Il Codice della<br><span>Riconquista</span></h1>
+      <form id="gate-form" class="gate-form" novalidate>
+        <p class="gate-lead" id="gate-lead">Inserisci l'email che hai usato per l'acquisto per aprire il libro.</p>
+        <label class="gate-lbl" for="gate-email">La tua email</label>
+        <input id="gate-email" class="gate-input" type="email" inputmode="email" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="nome@email.com" required>
+        <p class="gate-msg" id="gate-msg" role="alert" aria-live="assertive" hidden></p>
+        <button type="submit" class="intro-cta gate-cta" id="gate-btn">Accedi</button>
+        <a class="gate-buy" id="gate-buy" href="#" target="_blank" rel="noopener noreferrer" hidden>Acquista di nuovo</a>
+        <p class="gate-note">Non salviamo la tua email: sul tuo dispositivo resta solo un codice di verifica.</p>
+      </form>
+    </div>
+  </section>
+
   <section id="shelf" class="screen shelf" hidden aria-label="Libreria">
     <header class="shelf-top">
       <div class="brand"><img src="assets/rose.png" alt="" width="16" height="24"><span class="brand-t">Il Codice della Riconquista</span></div>

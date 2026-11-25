@@ -246,3 +246,17 @@ table.wb .writein{display:block;height:3.4cqw;margin:0;border-bottom:.3cqw solid
 .ls li{position:relative}
 .ls li::before{content:"";position:absolute;left:-4.4cqw;top:1.35cqw;width:1.7cqw;height:1.7cqw;border-radius:50%;background:var(--red);box-shadow:0 0 0 .45cqw rgba(219,23,38,.18)}
 .chk li::before{border-radius:.4cqw;background:transparent}
+
+/* ===== tela de acesso (e-mail da compra) ===== */
+.gate-form{margin:26px auto 0;max-width:340px;text-align:left}
+.gate-lead{margin:0 0 18px;font:italic 400 16px/1.45 var(--serif);color:rgba(255,255,255,.82);text-align:center;animation:intro-up .8s .3s ease both}
+.gate-lbl{display:block;margin:0 0 8px;font:600 11px/1 var(--sans);letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.62)}
+.gate-input{display:block;width:100%;min-height:52px;padding:0 16px;border:1px solid rgba(255,255,255,.22);border-radius:12px;background:rgba(255,255,255,.07);color:#fff;font:400 17px/1.2 var(--sans);outline:none;-webkit-appearance:none;appearance:none}
+.gate-input::placeholder{color:rgba(255,255,255,.34)}
+.gate-input:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,111,156,.25)}
+.gate-msg{margin:12px 2px 0;font:500 14px/1.4 var(--sans);color:#ffb3c6}
+.gate-msg[hidden],.gate-buy[hidden]{display:none!important}
+.gate-cta{width:100%;margin-top:16px;animation:none}
+.gate-cta[disabled]{opacity:.6;cursor:default}
+.gate-buy{display:flex;align-items:center;justify-content:center;min-height:48px;margin-top:12px;border:1px solid rgba(255,255,255,.28);border-radius:999px;color:#fff;text-decoration:none;font:700 13px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase}
+.gate-note{margin:16px 4px 0;text-align:center;font:400 12px/1.4 var(--sans);color:rgba(255,255,255,.45)}

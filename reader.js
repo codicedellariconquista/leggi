@@ -8,7 +8,7 @@
   function lsSet(k, v) { try { window.localStorage.setItem(k, v); } catch (e) {} }
   function $(id) { return document.getElementById(id); }
   function show(id) {
-    ['intro', 'shelf', 'reader', 'preview'].forEach(function (s) {
+    ['intro', 'gate', 'shelf', 'reader', 'preview'].forEach(function (s) {
       var el = $(s); if (el) el.hidden = (s !== id);
     });
   }
@@ -107,7 +107,7 @@
 
   var pf = null;
   var currentBook = null;
-  var accessState = { granted: true, bumps: { 1: false, 2: false } };
+  var accessState = { granted: false, bumps: { 1: false, 2: false } };
 
   function isLocked(book) {
     if (!book.bump) return false;
@@ -188,6 +188,7 @@
   function openBook(id, startPage) {
     var book = BOOKS[id];
     if (!book) return;
+    if (!accessState.granted) { showGate(); return; }
     if (isLocked(book)) { openPreview(id); return; }
     destroyFlip();
     show('reader');
@@ -231,6 +232,7 @@
   }
 
   function goShelf() {
+    if (!accessState.granted) { showGate(); return; }
     destroyFlip();
     renderShelf();
     show('shelf');
@@ -266,18 +268,66 @@
     books: BOOKS, isLocked: function (id) { return isLocked(BOOKS[id]); }
   };
 
+  /* ---- tela de acesso: e-mail da compra ---- */
+  var gateBusy = false;
+  var GATE_MSG = {
+    vazio: 'Inserisci un indirizzo email valido.',
+    nao_achei: 'Non troviamo un acquisto con questa email. Controlla l\'indirizzo. Se hai appena acquistato, attendi un minuto e riprova.',
+    reembolsado: 'Accesso terminato: questo acquisto risulta rimborsato.',
+    erro: 'Non riusciamo a verificare l\'acquisto in questo momento. Controlla la connessione e riprova.'
+  };
+  function gateMsg(kind) {
+    var m = $('gate-msg'), buy = $('gate-buy');
+    if (!kind) { m.hidden = true; m.textContent = ''; buy.hidden = true; return; }
+    m.textContent = GATE_MSG[kind] || GATE_MSG.erro; m.hidden = false;
+    if (kind === 'reembolsado' && CFG.HOTMART_FRONT_URL) { buy.href = CFG.HOTMART_FRONT_URL; buy.hidden = false; } else { buy.hidden = true; }
+  }
+  function showGate(kind) {
+    show('gate');
+    gateMsg(kind || null);
+  }
+  $('gate-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (gateBusy) return;
+    var email = $('gate-email').value.replace(/^\s+|\s+$/g, '');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { gateMsg('vazio'); return; }
+    gateBusy = true; gateMsg(null);
+    var btn = $('gate-btn'); btn.disabled = true; btn.textContent = 'Verifica in corso…';
+    Promise.resolve(window.RQIT_ACCESS.verify(email)).then(function (r) { return r; }, function () { return { ok: false, kind: 'erro' }; }).then(function (r) {
+      gateBusy = false; btn.disabled = false; btn.textContent = 'Accedi';
+      if (r && r.ok) { $('gate-email').value = ''; init(r.state); }
+      else gateMsg((r && r.kind) || 'erro');
+    });
+  });
+
   function init(acc) {
-    accessState = acc || accessState;
-    if (acc && acc.granted === false) {
-      show('intro');
-      $('intro').innerHTML = '<div class="noaccess"><div>Accesso non attivo</div><p>[[Testo placeholder: accesso non attivo per questo indirizzo.]]</p></div>';
+    accessState = acc || { granted: false, bumps: { 1: false, 2: false } };
+    if (!accessState.granted) {
+      showGate(accessState.estado === 'bloqueado' ? (accessState.motivo === 'reembolsado' ? 'reembolsado' : null) : null);
       return;
     }
     show('intro');
   }
 
+  /* volta de «Sblocca» (Hotmart abre em outra aba): refaz a consulta e, se o bump entrou, a estante já mostra aberto */
+  var lastRecheck = 0;
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden || !accessState.granted || !window.RQIT_ACCESS || !window.RQIT_ACCESS.recheck) return;
+    if (accessState.bumps && accessState.bumps[1] && accessState.bumps[2]) return;
+    if (Date.now() - lastRecheck < 20000) return;
+    lastRecheck = Date.now();
+    Promise.resolve(window.RQIT_ACCESS.recheck()).then(function (s) {
+      if (!s) return;
+      var changed = !!s.granted !== !!accessState.granted || !!s.bumps[1] !== !!accessState.bumps[1] || !!s.bumps[2] !== !!accessState.bumps[2];
+      if (!changed) return;
+      accessState = s;
+      if (!s.granted) { destroyFlip(); showGate(s.motivo === 'reembolsado' ? 'reembolsado' : null); }
+      else if (!$('shelf').hidden || !$('preview').hidden) goShelf();
+    });
+  });
+
   function boot() {
-    var chk = (window.RQIT_ACCESS && window.RQIT_ACCESS.check) ? window.RQIT_ACCESS.check() : Promise.resolve({ granted: true, bumps: { 1: false, 2: false } });
+    var chk = (window.RQIT_ACCESS && window.RQIT_ACCESS.check) ? window.RQIT_ACCESS.check() : Promise.resolve({ granted: false, bumps: { 1: false, 2: false } });
     Promise.resolve(chk).then(init).catch(function () { init({ granted: false }); });
   }
   if (document.fonts && document.fonts.load) {
