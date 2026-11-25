@@ -222,15 +222,15 @@
     var book = BOOKS[id];
     if (!book) return;
     var url = CFG[book.urlKey] || '#';
-    var img = id === 'bump1' ? 'assets/illust-lettera.webp' : 'assets/illust-sentiero.webp';
     $('preview-brand').textContent = book.title;
     var previewHtml = (id === 'bump1' ? C.bump1Preview : C.bump2Preview) || ph('ANTEPRIMA');
+    var lock = '<span class="book-lock" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10V7.5a5 5 0 0 1 10 0V10h1.2A1.8 1.8 0 0 1 20 11.8v8.4a1.8 1.8 0 0 1-1.8 1.8H5.8A1.8 1.8 0 0 1 4 20.2v-8.4A1.8 1.8 0 0 1 5.8 10H7Zm2 0h6V7.5a3 3 0 0 0-6 0V10Z"/></svg></span>';
     $('preview-wrap').innerHTML =
       '<article class="preview-page">' +
       '<p class="kick">Anteprima · Bonus</p>' +
       '<h2>' + book.title + '</h2>' +
       '<span class="rule" style="width:72px;margin:12px 0 16px;height:10px;border-top:3px solid #db1726;background:#120d0d;display:block"></span>' +
-      '<figure class="fig"><img src="' + img + '" alt=""></figure>' +
+      '<figure class="preview-cover"><img src="' + book.cover + '" alt="' + book.title + '">' + lock + '</figure>' +
       previewHtml +
       '<div class="preview-cta"><a class="lk-btn" href="' + url + '" data-bump="' + book.bump + '" rel="noopener noreferrer">Sblocca</a></div>' +
       '</article>';
