@@ -41,8 +41,8 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js', { 
       <div class="brand"><img src="assets/rose.png" alt="" width="16" height="24"><span class="brand-t">Il Codice della Riconquista</span></div>
     </header>
     <div class="shelf-body">
-      <p class="shelf-kicker">La tua libreria</p>
-      <h2 class="shelf-h">I tuoi libri</h2>
+      <div class="shelf-head"><p class="shelf-kicker">La tua libreria</p>
+      <h2 class="shelf-h">I tuoi libri</h2></div>
       <div class="shelf-grid" id="shelf-grid"></div>
     </div>
   </section>
@@ -58,12 +58,6 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js', { 
     </header>
     <main id="stage">
       <div id="book" aria-label="Libro digitale"></div>
-      <div id="hint" class="hint" hidden>
-        <div class="hint-corner" aria-hidden="true"></div>
-        <div class="hint-hand" aria-hidden="true">
-          <svg viewBox="0 0 64 64" width="44" height="44"><path d="M28 36V18a3.2 3.2 0 0 1 6.4 0v14M34.4 32V16a3.2 3.2 0 0 1 6.4 0v16M40.8 33V20a3.2 3.2 0 1 1 6.4 0v18c0 8-5 14-14.4 14h-1.2C24 52 18 47 18 39v-7a3.2 3.2 0 0 1 6.4 0v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 44l-8 10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
-        </div>
-      </div>
     </main>
     <div class="page-ind" id="page-ind" aria-live="polite"></div>
   </section>
@@ -84,7 +78,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js', { 
   <noscript><p style="color:#fff;padding:24px">Per leggere il libro serve JavaScript.</p></noscript>
 </div>
 <script src="config.js"></script>
-<script src="vendor/page-flip.browser.js"></script>
+<script src="turner.js"></script>
 <script src="access.js"></script>
 <script src="content.js"></script>
 <script src="reader.js"></script>

@@ -12,6 +12,9 @@ window.RQIT_CONFIG = {
   HOTMART_BUMP_URL_2: 'https://pay.hotmart.com/M108655097O?off=lvtwn36t',  // «Il primo incontro dopo la rottura» (9066815)
   /* Checkout do front (com bumps): https://pay.hotmart.com/R108654940V?checkoutMode=10 (produto 9066733). */
 
+  /* Dica de virar (mãozinha + seta no canto da folha): aparece só nas primeiras N viradas, depois some. */
+  HINT_MAX_TURNS: 6,
+
   /* Prefixo das chaves de localStorage (última página lida, dica de virar, etc.). */
   STORAGE_PREFIX: 'rqit_leitor_',
 

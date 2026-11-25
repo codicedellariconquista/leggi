@@ -1,4 +1,4 @@
-/* Leitor v2 «Il Codice della Riconquista». Lib: StPageFlip (page-flip 2.0.7, MIT), local em vendor/. Caminhos relativos (funciona em /leggi/). */
+/* Leitor «Il Codice della Riconquista». Virada de página própria (turner.js), sem biblioteca externa. Caminhos relativos (funciona em /leggi/). */
 (function () {
   'use strict';
   var CFG = window.RQIT_CONFIG || {};
@@ -103,6 +103,8 @@
     clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 3800);
   }
 
+  var HINT_SVG = '<svg viewBox="0 0 40 56" width="26" height="36" aria-hidden="true"><g class="hh"><path d="M18 25V10a2.6 2.6 0 0 1 5.2 0v11M23.2 21V8.6a2.6 2.6 0 0 1 5.2 0V21M28.4 21.6V12a2.6 2.6 0 1 1 5.2 0v14.4c0 6.6-4.3 11.4-11.8 11.4h-1c-6.2 0-11.2-4-11.2-10.4v-5.6a2.6 2.6 0 0 1 5.2 0V27" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></g><path class="ha" d="M31 49H10M16 43.5L10 49l6 5.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
   var pf = null;
   var currentBook = null;
   var accessState = { granted: true, bumps: { 1: false, 2: false } };
@@ -128,60 +130,37 @@
     var saved = parseInt(lsGet(key), 10);
     if (startPage == null) startPage = (isNaN(saved) || saved < 0 || saved >= count) ? 0 : saved;
 
-    pf = new St.PageFlip(book, {
-      width: 400, height: 690,
-      size: 'stretch', minWidth: 260, maxWidth: 560, minHeight: 448, maxHeight: 966,
-      showCover: true, usePortrait: true, startPage: startPage,
-      drawShadow: true, maxShadowOpacity: 0.55, flippingTime: 750,
-      mobileScrollSupport: false, swipeDistance: 24, clickEventForward: false,
-      useMouseEvents: true, showPageCorners: true, autoSize: true
-    });
-    pf.loadFromHTML(pages);
+    var imgs = book.querySelectorAll('img');
+    for (var q = 0; q < imgs.length; q++) { imgs[q].decoding = 'async'; imgs[q].draggable = false; }
+    pf = new RQIT_Turner(book, Array.prototype.slice.call(pages), { startPage: startPage });
     book.classList.add('is-ready');
 
-    var FLIP_THRESHOLD = 0.55;
-    var fc = pf.getFlipController();
-    fc.stopMove = function () {
-      if (this.calc === null) return;
-      var pos = this.calc.getPosition(), rect = this.getBoundsRect();
-      var y = this.calc.getCorner() === 'bottom' ? rect.height : 0;
-      if (pos.x <= rect.pageWidth * FLIP_THRESHOLD) this.animateFlippingTo(pos, { x: -rect.pageWidth, y: y }, true);
-      else this.animateFlippingTo(pos, { x: rect.pageWidth, y: y }, false);
-    };
-
-    var tp = null;
-    book.addEventListener('touchstart', function (e) {
-      if (e.touches.length !== 1) { tp = null; return; }
-      var t = e.touches[0];
-      tp = { x: t.clientX, y: t.clientY, t: Date.now(), a: e.target.closest ? e.target.closest('a') : null };
-    }, { passive: true });
-    book.addEventListener('touchend', function (e) {
-      var s = tp; tp = null;
-      if (!s || !e.changedTouches.length) return;
-      var t = e.changedTouches[0];
-      if (Math.abs(t.clientX - s.x) > 10 || Math.abs(t.clientY - s.y) > 10 || Date.now() - s.t > 400) return;
-      if (pf.getState() !== 'read') return;
-      if (s.a) { s.a.click(); return; }
-      var r = book.getBoundingClientRect(), rel = (s.x - r.left) / r.width;
-      if (rel > 0.62) pf.flipNext(); else if (rel < 0.38) pf.flipPrev();
-    }, { passive: true });
-    book.addEventListener('mousedown', function (e) {
-      if (e.target.closest && e.target.closest('a')) e.stopPropagation();
-    }, true);
-
-    function hideHint() {
-      var h = $('hint'); if (h) h.hidden = true;
-      lsSet(KEY_HINT, '1');
+    /* Dica de virar: mãozinha + seta no canto da folha, só nas primeiras viradas (HINT_MAX_TURNS), depois some para sempre. */
+    var maxTurns = (window.RQIT_CONFIG && window.RQIT_CONFIG.HINT_MAX_TURNS != null) ? window.RQIT_CONFIG.HINT_MAX_TURNS : 6;
+    var turns = parseInt(lsGet(KEY_HINT), 10) || 0;
+    var chip = null;
+    function syncHint(i) {
+      if (turns >= maxTurns || i >= count - 1) { if (chip) chip.classList.add('is-off'); return; }
+      if (!chip) {
+        chip = document.createElement('div');
+        chip.className = 'hint-chip';
+        chip.setAttribute('aria-hidden', 'true');
+        chip.innerHTML = HINT_SVG;
+        pf.frame.appendChild(chip);
+      }
+      chip.classList.remove('is-off');
     }
     function update(i) {
       $('page-ind').textContent = (i + 1) + '  ·  ' + count;
       lsSet(key, String(i));
-      if (i > startPage) hideHint();
     }
     update(startPage);
-    if (lsGet(KEY_HINT) === '1') $('hint').hidden = true;
-    else $('hint').hidden = false;
-    pf.on('flip', function (e) { update(e.data); if (e.data !== startPage) hideHint(); });
+    syncHint(startPage);
+    pf.on('flip', function (e) {
+      turns++; lsSet(KEY_HINT, String(turns));
+      update(e.data);
+      syncHint(e.data);
+    });
 
     book.addEventListener('click', function (e) {
       var a = e.target.closest ? e.target.closest('a') : null;
@@ -244,10 +223,10 @@
       var locked = isLocked(b);
       var label = b.title + (locked ? ' (bloccato)' : '');
       return '<button type="button" class="book-card' + (id === 'main' ? ' book-main' : '') + (locked ? ' is-locked' : '') + '" data-book="' + id + '" aria-label="' + label + '">' +
-        '<span class="book-cover">' +
-        '<img src="' + b.cover + '" alt="">' +
+        '<span class="book-art"><span class="book-glow" aria-hidden="true"></span><span class="book-cover">' +
+        '<img src="' + b.cover + '" alt="" decoding="async">' +
         (locked ? '<span class="book-lock" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10V7.5a5 5 0 0 1 10 0V10h1.2A1.8 1.8 0 0 1 20 11.8v8.4a1.8 1.8 0 0 1-1.8 1.8H5.8A1.8 1.8 0 0 1 4 20.2v-8.4A1.8 1.8 0 0 1 5.8 10H7Zm2 0h6V7.5a3 3 0 0 0-6 0V10Z"/></svg></span>' : '') +
-        '</span><span class="book-meta"><b>' + b.title + '</b>' + (locked ? 'Bloccato' : 'Disponibile') + '</span></button>';
+        '</span></span><span class="book-meta"><b>' + b.title + '</b>' + (locked ? 'Bloccato' : 'Disponibile') + '</span></button>';
     }).join('');
   }
 
