@@ -77,6 +77,20 @@ html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;backgrou
 .brand-t{font:700 11.5px/1 var(--serif);letter-spacing:.09em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
 .brand-mini{flex:1 1 auto;justify-content:center;min-width:0}
 .brand-mini img{width:14px;height:21px}
+/* títulos longos (ex.: bump 2): até 2 linhas, o texto inteiro, sem trocar o conteúdo */
+.reader .topbar{height:auto;min-height:calc(52px + var(--sat));align-items:center;padding-bottom:4px}
+.reader .brand-mini .brand-t{
+  white-space:normal;
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  line-height:1.2;
+  letter-spacing:.06em;
+  text-align:left;
+  overflow-wrap:break-word;
+  text-wrap:balance;
+}
 .tb-back,.tb-btn{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 10px;border:0;background:none;color:#fff;font:600 13px/1 var(--sans);cursor:pointer}
 .tb-btn{border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.06);padding:0 12px}
 .tb-btn:active,.tb-back:active{opacity:.7}
