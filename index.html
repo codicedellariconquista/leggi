@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Il Codice della Riconquista</title>
+<meta name="theme-color" content="#120d0d">
+<meta name="robots" content="noindex, nofollow">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Il Codice">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script>
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js', { scope: './' }).catch(function () {}); }
+</script>
+<link rel="preload" href="fonts/stix-two-text-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/cover-main.webp" as="image">
+<link rel="stylesheet" href="reader.css">
+</head>
+<body>
+<div id="app">
+
+  <section id="intro" class="screen intro" aria-label="Apertura">
+    <div class="intro-bg" aria-hidden="true"></div>
+    <div class="intro-inner">
+      <p class="intro-kicker">Henrico Feraz</p>
+      <div class="intro-rule" aria-hidden="true"></div>
+      <h1 class="intro-title">Il Codice della<br><span>Riconquista</span></h1>
+      <div class="intro-cover">
+        <img src="assets/cover-main.webp" alt="Il Codice della Riconquista" width="1200" height="1800">
+      </div>
+      <button type="button" class="intro-cta" id="btn-inizia">Inizia a leggere</button>
+    </div>
+  </section>
+
+  <section id="shelf" class="screen shelf" hidden aria-label="Libreria">
+    <header class="shelf-top">
+      <div class="brand"><img src="assets/rose.png" alt="" width="16" height="24"><span class="brand-t">Il Codice della Riconquista</span></div>
+    </header>
+    <div class="shelf-body">
+      <p class="shelf-kicker">La tua libreria</p>
+      <h2 class="shelf-h">I tuoi libri</h2>
+      <div class="shelf-grid" id="shelf-grid"></div>
+    </div>
+  </section>
+
+  <section id="reader" class="screen reader" hidden aria-label="Libro">
+    <header class="topbar">
+      <button type="button" class="tb-back" id="btn-libreria" aria-label="Torna alla libreria">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        <span>Libreria</span>
+      </button>
+      <div class="brand brand-mini" id="reader-brand"><img src="assets/rose.png" alt="" width="14" height="21"><span class="brand-t" id="reader-title">Il Codice della Riconquista</span></div>
+      <button type="button" class="tb-btn" id="btn-index" aria-label="Vai all'indice">Indice</button>
+    </header>
+    <main id="stage">
+      <div id="book" aria-label="Libro digitale"></div>
+      <div id="hint" class="hint" hidden>
+        <div class="hint-corner" aria-hidden="true"></div>
+        <div class="hint-hand" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="44" height="44"><path d="M28 36V18a3.2 3.2 0 0 1 6.4 0v14M34.4 32V16a3.2 3.2 0 0 1 6.4 0v16M40.8 33V20a3.2 3.2 0 1 1 6.4 0v18c0 8-5 14-14.4 14h-1.2C24 52 18 47 18 39v-7a3.2 3.2 0 0 1 6.4 0v4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 44l-8 10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+    </main>
+    <div class="page-ind" id="page-ind" aria-live="polite"></div>
+  </section>
+
+  <section id="preview" class="screen preview" hidden aria-label="Anteprima">
+    <header class="topbar">
+      <button type="button" class="tb-back" id="btn-preview-back" aria-label="Torna alla libreria">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        <span>Libreria</span>
+      </button>
+      <div class="brand brand-mini"><img src="assets/rose.png" alt="" width="14" height="21"><span class="brand-t" id="preview-brand">Bonus</span></div>
+      <span class="tb-spacer" aria-hidden="true"></span>
+    </header>
+    <div class="preview-wrap" id="preview-wrap"></div>
+  </section>
+
+  <div id="toast" role="status" aria-live="polite" hidden></div>
+  <noscript><p style="color:#fff;padding:24px">Per leggere il libro serve JavaScript.</p></noscript>
+</div>
+<script src="config.js"></script>
+<script src="vendor/page-flip.browser.js"></script>
+<script src="access.js"></script>
+<script src="content.js"></script>
+<script src="reader.js"></script>
+</body>
+</html>

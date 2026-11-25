@@ -1,0 +1,46 @@
+/* Service worker do leitor. Para publicar uma versão nova: trocar VERSION (o cache antigo é apagado no activate). */
+/* Caminhos relativos ao escopo do SW: funciona em https://codicedellariconquista.com/leggi/ e em localhost:/leggi/. */
+var VERSION = 'rqit-leitor-v5';
+var SCOPE = self.registration.scope;
+var PRECACHE = [
+  './', 'index.html', 'reader.css', 'reader.js', 'content.js', 'config.js', 'access.js', 'manifest.webmanifest',
+  'vendor/page-flip.browser.js',
+  'fonts/stix-two-text-latin-var.woff2', 'fonts/stix-two-text-latin-var-italic.woff2',
+  'assets/cover-photo.webp', 'assets/cover-main.webp', 'assets/cover-bump1.webp', 'assets/cover-bump2.webp',
+  'assets/illust-rosa.webp', 'assets/illust-sentiero.webp', 'assets/illust-lettera.webp', 'assets/rose.png',
+  'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png', 'icons/favicon-64.png'
+].map(function (u) { return new URL(u, SCOPE).href; });
+
+self.addEventListener('install', function (e) {
+  e.waitUntil(caches.open(VERSION).then(function (c) { return c.addAll(PRECACHE); }).then(function () { return self.skipWaiting(); }));
+});
+
+self.addEventListener('activate', function (e) {
+  e.waitUntil(
+    caches.keys().then(function (keys) {
+      return Promise.all(keys.filter(function (k) { return k.indexOf('rqit-leitor-') === 0 && k !== VERSION; }).map(function (k) { return caches.delete(k); }));
+    }).then(function () { return self.clients.claim(); })
+  );
+});
+
+self.addEventListener('fetch', function (e) {
+  var req = e.request;
+  if (req.method !== 'GET') return;
+  var url = new URL(req.url);
+  if (url.origin !== self.location.origin || url.pathname === '/health' || url.href.indexOf(SCOPE) !== 0) return;
+  e.respondWith(
+    caches.open(VERSION).then(function (cache) {
+      return cache.match(req, { ignoreSearch: true }).then(function (hit) {
+        var net = fetch(req).then(function (res) {
+          if (res && res.ok && res.type === 'basic') cache.put(req, res.clone());
+          return res;
+        }).catch(function () {
+          if (hit) return hit;
+          if (req.mode === 'navigate') return cache.match(new URL('index.html', SCOPE).href);
+          return Response.error();
+        });
+        return hit || net;
+      });
+    })
+  );
+});
