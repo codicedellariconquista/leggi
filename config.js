@@ -23,7 +23,7 @@ window.RQIT_CONFIG = {
   /* Endpoint do painel: GET <API_ACESSO_URL>?k=<CHAVE_OFERTA>&e=<sha256 do e-mail>
      Resposta: { s: 'ok'|'reembolsado'|'nao_achei', p: [nomes dos produtos pagos] }. */
   API_ACESSO_URL: 'https://painel.labofertas.com/api/app/acesso',
-  CHAVE_OFERTA: '<CHAVE_OFERTA>',
+  CHAVE_OFERTA: '44a44960c19e8820418c931b56392687',
 
   /* Mapa produto Hotmart -> LIVRO (não capítulo). IDs: Checkout, 25/11/2026 (rascunho).
      9066733 abre o livro principal (cap. 1–3); 9066787 abre o bump 1; 9066815 abre o bump 2. */
